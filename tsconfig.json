@@ -16,6 +16,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@nowzoo/ngx-ace": [
+        "dist/ngx-ace"
+      ],
+      "@nowzoo/ngx-ace/*": [
+        "dist/ngx-ace/*"
+      ]
+    }
   }
 }
