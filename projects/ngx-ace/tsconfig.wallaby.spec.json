@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/spec",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "types": [
+      "jasmine",
+      "node"
+    ],
+    "lib": [
+      "dom",
+      "es2017"
+    ]
+  },
+  "files": [
+    "src/test.ts"
+  ],
+  "include": [
+    "**/*.spec.ts",
+    "**/*.d.ts"
+  ]
+}

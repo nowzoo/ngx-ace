@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, ElementRef, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, ElementRef, EventEmitter, SimpleChanges, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { NgxAceService } from './ngx-ace.service';
 declare const ace: any;
@@ -13,8 +13,10 @@ declare const ace: any;
     multi: true
   }]
 })
-export class NgxAceComponent implements OnInit, OnDestroy, ControlValueAccessor {
+export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlValueAccessor {
   static counter = 0;
+  @Input() mode: string = null;
+  @Input() theme: string = null;
   @Output() ready: EventEmitter<any> = new EventEmitter();
   id: string;
   private _editor: any = null;
@@ -25,6 +27,10 @@ export class NgxAceComponent implements OnInit, OnDestroy, ControlValueAccessor 
     private _service: NgxAceService,
     private _elementRef: ElementRef,
   ) {}
+
+  get service(): NgxAceService {
+    return this._service;
+  }
 
   get editor(): any {
     return this._editor;
@@ -55,25 +61,59 @@ export class NgxAceComponent implements OnInit, OnDestroy, ControlValueAccessor 
   }
 
   ngOnInit() {
-    this._service.loaded()
+    this.service.loaded()
       .then(() => {
         this.id = `ngx-ace-${++NgxAceComponent.counter}`;
         this._editor = ace.edit(this._elementRef.nativeElement);
+        if (this.service.defaultEditorOptions) {
+          this.editor.setOptions(this.service.defaultEditorOptions);
+        }
+        this.onModeChanged();
+        this.onThemeChanged();
         this.editor.setValue(this._value);
-        this.editor.on('change', () => {
-          this.propagateChange(this.editor.getValue());
-        });
-        this.editor.on('blur', () => {
-          this.propagateTouched(this.editor.getValue());
-        });
+        this.editor.on('change', this.onEditorValueChange.bind(this));
+        this.editor.on('blur', this.onEditorBlurred.bind(this));
         this.ready.emit(this.editor);
       });
 
 
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (! this.editor) {
+      return;
+    }
+    if (changes.mode) {
+      this.onModeChanged();
+    }
+    if (changes.theme) {
+      this.onThemeChanged();
+    }
+
+  }
+
   ngOnDestroy() {
     this.editor.destroy();
+  }
+
+  onModeChanged() {
+    if (this.mode) {
+      this.editor.setMode(`ace/mode/${this.mode}`);
+    }
+  }
+
+  onThemeChanged() {
+    if (this.theme) {
+      this.editor.setTheme(`ace/theme/${this.theme}`);
+    }
+  }
+
+  onEditorValueChange() {
+    this.propagateChange(this.editor.getValue());
+  }
+
+  onEditorBlurred() {
+    this.propagateTouched(this.editor.getValue());
   }
 
 }

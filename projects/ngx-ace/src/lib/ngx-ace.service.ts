@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { NGX_ACE_OPTIONS, INgxAceOptions } from './shared';
+import { NGX_ACE_OPTIONS, INgxAceOptions, IAceEditorOptions } from './shared';
 declare const ace: any;
 @Injectable({
   providedIn: 'root'
@@ -11,16 +11,24 @@ export class NgxAceService {
     @Inject(NGX_ACE_OPTIONS) private _options: INgxAceOptions
   ) { }
 
+  get aceURL(): string {
+    return this._options.aceURL;
+  }
+
+  get defaultEditorOptions(): IAceEditorOptions {
+    return this._options.defaultEditorOptions || null;
+  }
+
   loaded(): Promise<void> {
     if (! this._loadedPromise) {
       this._loadedPromise = new Promise((resolve, reject) => {
         const scriptTag = document.createElement('script');
         scriptTag.onload = () => {
-          ace.config.set('basePath', this._options.aceURL);
+          ace.config.set('basePath', this.aceURL);
           resolve();
         };
         scriptTag.onerror = reject;
-        scriptTag.src = `${this._options.aceURL}/ace.js`;
+        scriptTag.src = `${this.aceURL}/ace.js`;
         document.body.appendChild(scriptTag);
       });
     }
