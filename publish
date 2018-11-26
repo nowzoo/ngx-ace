@@ -6,11 +6,11 @@ VERSION="$(npm version patch)"
 cd ../..
 
 # build the lib
-ng build ngx-strap --prod
-cp README.md LICENSE dist/ngx-strap/
+ng build ngx-ace
+cp README.md LICENSE dist/ngx-ace/
 
 # publish to NPM
-cd dist/ngx-strap
+cd dist/ngx-ace
 npm publish --access public
 cd ../..
 
