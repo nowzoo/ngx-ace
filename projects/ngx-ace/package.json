@@ -1,6 +1,16 @@
 {
   "name": "@nowzoo/ngx-ace",
   "description": "A quick and dirty Angular wrapper for the Ace code editor",
+  "keywords": [
+    "ace", "angular", "editor", "reactive form"
+  ],
+  "homepage": "https://github.com/nowzoo/ngx-ace",
+  "bugs": "https://github.com/nowzoo/ngx-ace/issues",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/nowzoo/ngx-ace.git"
+  },
+  "license" : "MIT",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^7.0.0",
