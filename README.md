@@ -1,5 +1,57 @@
 # NgxAce
 
+A simple Angular library for creating Ace editors. Loads scripts and themes from a CDN or other URL.
+
+## Installation
+
+```bash
+npm i --save @nowzoo/ngx-ace
+```
+
+## Quick Start
+
+Import the library into your app...
+```typescript
+import { NgxAceModule } from '@nowzoo/ngx-ace';
+// ...
+@NgModule({
+  imports: [
+    NgxAceModule.forRoot()
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+Use the `ngx-ace` component...
+```typescript
+// my.component.ts
+export class MyComponent {
+  content = 'Hello World';
+}
+```
+```html
+<!-- my.component.html -->
+<div class="my-ace-wrapper">
+  <ngx-ace mode="markdown" [(ngModel)]="content"></ngx-ace>
+</div>
+```
+
+**Important note about sizing...**
+
+The `ngx-ace` component is styled with `height: 100%; width: 100%`. In order for the ace editor to show up you must wrap the component with an element with a height...
+
+```scss
+.my-ace-wrapper {
+  height: 400px;
+  border: 1px solid #DDD;
+}
+```  
+
+You can use the component with template (`ngModel`) or reactive (`[formControl]="myControl"`) controls. You can also use the component without Angular forms, by accessing the underlying Ace editor instance directly...
+
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.2.
 
 ## Development server

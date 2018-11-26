@@ -1,9 +1,7 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, ElementRef, SimpleChanges, Inject, forwardRef } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy,
+  Input, Output, ElementRef, SimpleChanges, EventEmitter, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Ace } from 'ace-builds';
 import { NgxAceService } from './ngx-ace.service';
-import { NGX_ACE_OPTIONS, INgxAceOptions} from './shared';
-
 declare const ace: any;
 @Component({
   selector: 'ngx-ace',
@@ -18,30 +16,44 @@ declare const ace: any;
 })
 export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlValueAccessor {
   static counter = 0;
-  @Input() mode: string = null;
-  @Input() theme: string = null;
-  @Input() fontSize: string = null;
+  @Input() mode = 'text';
+  @Input() theme = 'chrome';
+
+  @Output() change: EventEmitter<any> = new EventEmitter();
+  @Output() blur: EventEmitter<Event> = new EventEmitter();
+  @Output() focus: EventEmitter<Event> = new EventEmitter();
+  @Output() changeSelectionStyle: EventEmitter<any> = new EventEmitter();
+  @Output() changeSession: EventEmitter<any> = new EventEmitter();
+  @Output() copy: EventEmitter<any> = new EventEmitter();
+  @Output() paste: EventEmitter<any> = new EventEmitter();
+  @Output() changeCursor: EventEmitter<any> = new EventEmitter();
+  @Output() changeSelection: EventEmitter<any> = new EventEmitter();
+  @Output() scroll: EventEmitter<any> = new EventEmitter();
+
+  ready: Promise<void>;
+  private _readyResolve: () => void;
+  private _readyReject: (error: Error) => void;
   id: string;
 
-  private _editor: Ace.Editor = null;
-  private _value: string;
+  private _editor: any = null;
+  private _value = '';
   propagateChange: (_: any) => void = () => {};
   propagateTouched: (_: any) => void = () => {};
   constructor(
     private _service: NgxAceService,
     private _elementRef: ElementRef,
-    @Inject(NGX_ACE_OPTIONS) private _options: INgxAceOptions
-  ) { }
-
-  get service(): NgxAceService {
-    return this._service;
+  ) {
+    this.ready = new Promise((resolve, reject) => {
+      this._readyResolve = resolve;
+      this._readyReject = reject;
+    });
   }
 
-  get editor(): Ace.Editor {
+  get editor(): any {
     return this._editor;
   }
 
-  get session(): Ace.EditSession {
+  get session(): any {
     return this.editor.session;
   }
 
@@ -66,24 +78,33 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   }
 
   ngOnInit() {
-    this.id = `ngx-ace-${++NgxAceComponent.counter}`;
-    this.mode = this.mode || 'html';
-    this.fontSize = this.fontSize || this._options.defaultFontSize;
-    this.theme = this.theme || this._options.defaultTheme;
-    this.service.loaded()
+    this._service.loaded()
       .then(() => {
+        this.id = `ngx-ace-${++NgxAceComponent.counter}`;
         this._editor = ace.edit(this._elementRef.nativeElement);
-        this.session.setMode(`ace/mode/${this.mode}`);
-        this.editor.setTheme(`ace/theme/${this.theme}`);
-        this.editor.setFontSize(this.fontSize);
+        this.onModeChanged();
+        this.onThemeChanged();
         this.editor.setValue(this._value);
-        this.editor.on('change', () => {
+        this.editor.on('change', (delta: any) => {
           this.propagateChange(this.editor.getValue());
+          this.change.emit(delta);
         });
-        this.editor.on('blur', () => {
+        this.editor.on('blur', (event: Event) => {
           this.propagateTouched(this.editor.getValue());
+          this.blur.emit(event);
         });
-      });
+        this.editor.on('focus', (event: Event) => this.focus.emit(event));
+        this.editor.on('changeSelectionStyle', (o) => this.changeSelectionStyle.emit(o));
+        this.editor.on('changeSession', (o) => this.changeSession.emit(o));
+        this.editor.on('copy', (o) => this.copy.emit(o));
+        this.editor.on('paste', (o) => this.paste.emit(o));
+        this.session.selection.on('changeCursor', (o) => this.changeCursor.emit(o));
+        this.session.selection.on('changeSelection', (o) => this.changeSelection.emit(o));
+        this._readyResolve();
+      })
+      .catch(this._readyReject);
+
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -91,17 +112,29 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
       return;
     }
     if (changes.mode) {
-      this.session.setMode(`ace/mode/${this.mode}`);
+      this.onModeChanged();
     }
     if (changes.theme) {
-      this.editor.setTheme(`ace/theme/${this.theme}`);
-    }
-    if (changes.fontSize) {
-      this.editor.setFontSize(this.fontSize);
+      this.onThemeChanged();
     }
   }
+
+
 
   ngOnDestroy() {
     this.editor.destroy();
   }
+
+  onModeChanged() {
+    const mode = this.mode || 'text';
+    this.session.setMode(`ace/mode/${mode}`);
+  }
+
+  onThemeChanged() {
+    const theme = this.theme || 'chrome';
+    this.editor.setTheme(`ace/theme/${theme}`);
+  }
+
+
+
 }

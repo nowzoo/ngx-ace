@@ -4,8 +4,8 @@
       <ngx-ace
         [mode]="mode"
         [theme]="theme"
-        [fontSize]="fontSize"
-        [(ngModel)]="content"></ngx-ace>
+        [options]="options"
+        [formControl]="contentFc"></ngx-ace>
     </div>
   </div>
   <div class="col-md-3 col-lg-2">
@@ -23,13 +23,11 @@
     </div>
     <div class="form-group">
       <label for="fontSize">Font Size</label>
-      <select class="form-control" [(ngModel)]="fontSize" id="fontSize">
-        <option *ngFor="let s of fontSizes" [value]="s">{{s}}</option>
-      </select>
+      <input type="number" id="fontSize" min="8" max="64" class="form-control" [(ngModel)]="options.fontSize">
     </div>
   </div>
 </div>
 
 <div class="my-4">
-  <pre>Model Value: {{content | json}}</pre>
+  <pre>Model Value: {{contentFc.value | json}}</pre>
 </div>
