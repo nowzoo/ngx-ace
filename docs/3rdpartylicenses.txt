@@ -276,6 +276,7 @@ MIT
 MIT
 
 @nowzoo/ngx-ace
+MIT
 The MIT License
 
 Copyright (c) 2018 NowZoo
