@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, OnDestroy, Input, Output, ElementRef, EventEmitter, SimpleChanges,
-  NgZone, Renderer2, forwardRef } from '@angular/core';
+  NgZone, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { NgxAceService } from './ngx-ace.service';
 declare const ace: any;
@@ -22,13 +22,13 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   id: string;
   private _editor: any = null;
   private _value = '';
+  private _disabled = false;
   propagateChange: (_: any) => void = () => {};
   propagateTouched: (_: any) => void = () => {};
   constructor(
     private _service: NgxAceService,
     private _elementRef: ElementRef,
     private _zone: NgZone,
-    private _renderer: Renderer2
   ) {}
 
   get service(): NgxAceService {
@@ -60,16 +60,14 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.editor.setReadOnly(isDisabled);
+    this._disabled = isDisabled;
+    if (this.editor) {
+      this.editor.setReadOnly(isDisabled);
+    }
+
   }
 
   ngOnInit() {
-    this._renderer.setAttribute(this._elementRef.nativeElement, 'tabIndex', '-1');
-    this._renderer.listen(this._elementRef.nativeElement, 'focus', () => {
-      if (this.editor) {
-        this.editor.focus();
-      }
-    });
     this._zone.runOutsideAngular(() => {
       this.service.loaded()
         .then(() => {
@@ -79,6 +77,7 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
             if (this.service.defaultEditorOptions) {
               this.editor.setOptions(this.service.defaultEditorOptions);
             }
+            this.editor.setReadOnly(this._disabled);
             this.onModeChanged();
             this.onThemeChanged();
             this.editor.setValue(this._value);
@@ -120,6 +119,8 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
     }
   }
 
+
+
   onEditorValueChange() {
     this.propagateChange(this.editor.getValue());
   }
@@ -127,5 +128,7 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   onEditorBlurred() {
     this.propagateTouched(this.editor.getValue());
   }
+
+
 
 }
