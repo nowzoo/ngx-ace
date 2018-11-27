@@ -66,9 +66,9 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
     this._zone.runOutsideAngular(() => {
       this.service.loaded()
         .then(() => {
-          this.id = `ngx-ace-${++NgxAceComponent.counter}`;
-          this._editor = ace.edit(this._elementRef.nativeElement);
           this._zone.run(() => {
+            this.id = `ngx-ace-${++NgxAceComponent.counter}`;
+            this._editor = ace.edit(this._elementRef.nativeElement);
             if (this.service.defaultEditorOptions) {
               this.editor.setOptions(this.service.defaultEditorOptions);
             }
