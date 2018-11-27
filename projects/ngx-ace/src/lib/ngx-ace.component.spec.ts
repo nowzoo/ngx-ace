@@ -186,20 +186,20 @@ describe('NgxAceComponent', () => {
   });
 
   describe('onModeChanged()', () => {
-    let editor;
+    let session;
     beforeEach(() => {
-      editor = {setMode: jasmine.createSpy()};
-      spyOnProperty(component, 'editor').and.returnValue(editor);
+      session = {setMode: jasmine.createSpy()};
+      spyOnProperty(component, 'session').and.returnValue(session);
     });
     it('should do nothing if component.mode is null', () => {
       component.mode = null;
       component.onModeChanged();
-      expect(editor.setMode).not.toHaveBeenCalled();
+      expect(session.setMode).not.toHaveBeenCalled();
     });
     it('should set the mode', () => {
       component.mode = 'foo';
       component.onModeChanged();
-      expect(editor.setMode).toHaveBeenCalledWith('ace/mode/foo');
+      expect(session.setMode).toHaveBeenCalledWith('ace/mode/foo');
     });
   });
 

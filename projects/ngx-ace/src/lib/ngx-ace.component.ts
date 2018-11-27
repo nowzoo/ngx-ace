@@ -103,7 +103,7 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
 
   onModeChanged() {
     if (this.mode) {
-      this.editor.setMode(`ace/mode/${this.mode}`);
+      this.session.setMode(`ace/mode/${this.mode}`);
     }
   }
 
