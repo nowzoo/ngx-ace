@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, Output, ElementRef, EventEmitter, SimpleChanges, forwardRef } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, ElementRef, EventEmitter, SimpleChanges,
+  NgZone, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { NgxAceService } from './ngx-ace.service';
 declare const ace: any;
@@ -26,6 +27,7 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   constructor(
     private _service: NgxAceService,
     private _elementRef: ElementRef,
+    private _zone: NgZone
   ) {}
 
   get service(): NgxAceService {
@@ -61,21 +63,24 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   }
 
   ngOnInit() {
-    this.service.loaded()
-      .then(() => {
-        this.id = `ngx-ace-${++NgxAceComponent.counter}`;
-        this._editor = ace.edit(this._elementRef.nativeElement);
-        if (this.service.defaultEditorOptions) {
-          this.editor.setOptions(this.service.defaultEditorOptions);
-        }
-        this.onModeChanged();
-        this.onThemeChanged();
-        this.editor.setValue(this._value);
-        this.editor.on('change', this.onEditorValueChange.bind(this));
-        this.editor.on('blur', this.onEditorBlurred.bind(this));
-        this.ready.emit(this.editor);
-      });
-
+    this._zone.runOutsideAngular(() => {
+      this.service.loaded()
+        .then(() => {
+          this.id = `ngx-ace-${++NgxAceComponent.counter}`;
+          this._editor = ace.edit(this._elementRef.nativeElement);
+          this._zone.run(() => {
+            if (this.service.defaultEditorOptions) {
+              this.editor.setOptions(this.service.defaultEditorOptions);
+            }
+            this.onModeChanged();
+            this.onThemeChanged();
+            this.editor.setValue(this._value);
+            this.editor.on('change', this.onEditorValueChange.bind(this));
+            this.editor.on('blur', this.onEditorBlurred.bind(this));
+            this.ready.emit(this.editor);
+          });
+        });
+    });
 
   }
 
