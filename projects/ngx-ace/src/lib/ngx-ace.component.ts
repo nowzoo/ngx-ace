@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, OnDestroy, Input, Output, ElementRef, EventEmitter, SimpleChanges,
-  NgZone, forwardRef } from '@angular/core';
+  NgZone, Renderer2, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { NgxAceService } from './ngx-ace.service';
 declare const ace: any;
@@ -27,7 +27,8 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   constructor(
     private _service: NgxAceService,
     private _elementRef: ElementRef,
-    private _zone: NgZone
+    private _zone: NgZone,
+    private _renderer: Renderer2
   ) {}
 
   get service(): NgxAceService {
@@ -63,6 +64,12 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
   }
 
   ngOnInit() {
+    this._renderer.setAttribute(this._elementRef.nativeElement, 'tabIndex', '-1');
+    this._renderer.listen(this._elementRef.nativeElement, 'focus', () => {
+      if (this.editor) {
+        this.editor.focus();
+      }
+    });
     this._zone.runOutsideAngular(() => {
       this.service.loaded()
         .then(() => {
