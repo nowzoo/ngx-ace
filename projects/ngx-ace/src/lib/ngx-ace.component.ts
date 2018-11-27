@@ -50,7 +50,7 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
     if (! this.editor) {
       return;
     }
-    this.editor.setValue(this._value);
+    this.editor.setValue(this._value, -1);
     this.editor.moveCursorToPosition(this._position);
   }
 
@@ -83,12 +83,13 @@ export class NgxAceComponent implements OnInit, OnChanges, OnDestroy, ControlVal
             this.editor.setReadOnly(this._disabled);
             this.onModeChanged();
             this.onThemeChanged();
-            this.editor.setValue(this._value);
+            this.editor.setValue(this._value, -1);
             this.editor.moveCursorToPosition(this._position);
             this.editor.on('change', this.onEditorValueChange.bind(this));
             this.editor.on('blur', this.onEditorBlurred.bind(this));
             this.editor.getSelection().on('changeCursor', () => {
               this._position = this.editor.getCursorPosition();
+              console.log(this._position);
             });
             this.ready.emit(this.editor);
           });
